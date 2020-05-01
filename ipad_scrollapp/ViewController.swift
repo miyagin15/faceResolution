@@ -109,9 +109,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         i = 0
         time = 0
         goalLabel.text = String(goalPositionInt[i])
-        myCollectionView.contentOffset.x = firstStartPosition
-        userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
+        // myCollectionView.contentOffset.x = firstStartPosition
+        // userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
         dataAppendBool = true
+        let ratio = userDefaults.float(forKey: "ratio")
+        nowgoal_Data.append(Float(myCollectionViewPosition + 25))
+        nowgoal_Data.append(Float(ratio))
+        AudioServicesPlaySystemSound(sound)
+        let pastResoultionView = UIView()
+        pastResoultionView.frame = resoultionBar.frame
+        pastResoultionView.backgroundColor = UIColor.red
+        view.addSubview(pastResoultionView)
     }
 
     @IBOutlet var repeatNumberLabel: UILabel!
@@ -124,6 +132,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         return configuration
     }()
 
+    @IBOutlet var resoultionBar: UIView!
     // var NetWork = NetWorkViewController()
     // ゴールの目標セルを決める
     // var goalPositionInt: [Int] = [15, 14, 13, 12, 11, 10, 20, 16, 17, 18, 19]
@@ -167,7 +176,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     // Cellの総数を返す
     func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
-        return 100
+        return 300
     }
 
     // Cellに値を設定する
@@ -195,7 +204,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         myCollectionView = Utility.createScrollView(directionString: "horizonal")
         myCollectionView.delegate = self
         myCollectionView.dataSource = self
-        view.addSubview(myCollectionView)
+        // view.addSubview(myCollectionView)
     }
 
     private func decideGoalpositionTimeCount() {
@@ -209,8 +218,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     }
 
     private func createGoalView() {
-        view.addSubview(Utility.createGoalView(directionString: "horizonal")
-        )
+        print("a") // view.addSubview(Utility.createGoalView(directionString: "horizonal"))
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -229,7 +237,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     var lastValueR: CGFloat = 0
     // LPFの比率
-    var LPFRatio: CGFloat = 0.5
+    var LPFRatio: CGFloat = 0.9
     var maxValueR: CGFloat = 0
     // right scroll
     private func rightScrollMainThread(ratio: CGFloat) {
@@ -247,6 +255,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            } else if self.inputMethodString == "position" {
 //                self.myCollectionView.contentOffset = CGPoint(x: 300 * ratio * CGFloat(self.ratioChange), y: 0)
             } else if self.inputMethodString == "position" {
+                self.resoultionBar.transform = CGAffineTransform(translationX: ratio * 250, y: 0)
+                self.userDefaults.set(ratio, forKey: "ratio")
+                self.myCollectionView.contentOffset = CGPoint(x: CGFloat(2500) + 300 * outPutLPF * CGFloat(self.ratioChange), y: 0)
+
+                return
                 if self.maxValueR < outPutLPF {
                     self.maxValueR = outPutLPF
                     let ClutchPosition = self.userDefaults.float(forKey: "beforeCollectionViewPosition")
@@ -293,6 +306,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            } else if self.inputMethodString == "position" {
 //                self.myCollectionView.contentOffset = CGPoint(x: -300 * ratio * CGFloat(self.ratioChange), y: 0)
             } else if self.inputMethodString == "position" {
+                self.resoultionBar.transform = CGAffineTransform(translationX: -ratio * 250, y: 0)
+                self.userDefaults.set(ratio, forKey: "ratio")
+                self.myCollectionView.contentOffset = CGPoint(x: CGFloat(2500) - 300 * outPutLPF * CGFloat(self.ratioChange), y: 0)
+                return
                 if self.maxValueL < outPutLPF {
                     self.maxValueL = outPutLPF
                     let ClutchPosition = self.userDefaults.float(forKey: "beforeCollectionViewPosition")
@@ -606,9 +623,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                     self.nowgoal_Data.append(Float(self.myCollectionViewPosition + 25))
                     self.nowgoal_Data.append(Float(self.goalPosition[self.i]))
                 }
-                // print(Float(self.tableViewPosition))
-                // データをパソコンに送る(今の場所と目標地点)
-                // self.NetWork.send(message: [Float(self.tableViewPosition),self.goalPosition[self.i]])
             }
         }
 

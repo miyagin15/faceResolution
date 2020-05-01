@@ -28,7 +28,7 @@ class Utility {
         let layout = UICollectionViewFlowLayout()
         if directionString == "horizonal" {
             // Cell一つ一つの大きさ.
-            layout.itemSize = CGSize(width: 100, height: 600)
+            layout.itemSize = CGSize(width: 50, height: 600)
             layout.minimumLineSpacing = 0.1
             // Cellのマージン.
             // layout.sectionInset = UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
