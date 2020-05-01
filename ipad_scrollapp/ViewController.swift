@@ -238,6 +238,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var lastValueR: CGFloat = 0
     // LPFの比率
     var LPFRatio: CGFloat = 0.9
+
     var maxValueR: CGFloat = 0
     // right scroll
     private func rightScrollMainThread(ratio: CGFloat) {
@@ -255,7 +256,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            } else if self.inputMethodString == "position" {
 //                self.myCollectionView.contentOffset = CGPoint(x: 300 * ratio * CGFloat(self.ratioChange), y: 0)
             } else if self.inputMethodString == "position" {
-                self.resoultionBar.transform = CGAffineTransform(translationX: ratio * 250, y: 0)
+                self.resoultionBar.transform = CGAffineTransform(translationX: outPutLPF * 250, y: 0)
                 self.userDefaults.set(ratio, forKey: "ratio")
                 self.myCollectionView.contentOffset = CGPoint(x: CGFloat(2500) + 300 * outPutLPF * CGFloat(self.ratioChange), y: 0)
 
@@ -306,7 +307,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            } else if self.inputMethodString == "position" {
 //                self.myCollectionView.contentOffset = CGPoint(x: -300 * ratio * CGFloat(self.ratioChange), y: 0)
             } else if self.inputMethodString == "position" {
-                self.resoultionBar.transform = CGAffineTransform(translationX: -ratio * 250, y: 0)
+                self.resoultionBar.transform = CGAffineTransform(translationX: -outPutLPF * 250, y: 0)
                 self.userDefaults.set(ratio, forKey: "ratio")
                 self.myCollectionView.contentOffset = CGPoint(x: CGFloat(2500) - 300 * outPutLPF * CGFloat(self.ratioChange), y: 0)
                 return
