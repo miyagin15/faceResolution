@@ -190,7 +190,7 @@
                                 <rect key="frame" x="655" y="535" width="521" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </slider>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qY7-6W-TgR">
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qY7-6W-TgR" userLabel="faceResolutionMemoryView">
                                 <rect key="frame" x="0.0" y="300" width="619" height="291"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
@@ -223,6 +223,7 @@
                     <connections>
                         <outlet property="buttonLabel" destination="WSq-IT-Skv" id="rVA-dm-njm"/>
                         <outlet property="callibrationBoolLabel" destination="kt1-oE-uav" id="bEJ-17-Vr8"/>
+                        <outlet property="faceResoultionMemoryView" destination="qY7-6W-TgR" id="Wak-yZ-oXW"/>
                         <outlet property="functionalExpression" destination="3Mr-z6-nJ4" id="6bp-PO-JFV"/>
                         <outlet property="functionalExpressionLabel" destination="ZR1-g8-nJ2" id="D5x-JR-f3x"/>
                         <outlet property="goalLabel" destination="nPB-qJ-nXg" id="yzk-7b-TmJ"/>

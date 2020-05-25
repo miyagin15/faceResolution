@@ -104,6 +104,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         dataAppendBool = true
     }
 
+    @IBOutlet var faceResoultionMemoryView: UIView!
     @IBAction func startButton(_: Any) {
         // nowgoal_Data = []
         i = 0
@@ -156,6 +157,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //        view.addSubview(depthImageView)
 
         // goalPositionInt = Utility.goalPositionInt
+        addResolutionMemoryView()
         createScrollVIew()
         decideGoalpositionTimeCount()
         createGoalView()
@@ -171,6 +173,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     @objc func update() {
         DispatchQueue.main.async {
             self.tracking.backgroundColor = UIColor.white
+        }
+    }
+
+    func addResolutionMemoryView() {
+        for i in 0 ... 30 {
+            let pastResoultionView = UIView()
+            let x = faceResoultionMemoryView.frame.origin.x
+            let y = faceResoultionMemoryView.frame.origin.y
+            pastResoultionView.frame.origin.x = x + CGFloat(i * 20)
+            pastResoultionView.frame.origin.y = 0
+            pastResoultionView.frame.size.width = 10
+            pastResoultionView.frame.size.height = resoultionBar.frame.size.height
+            pastResoultionView.backgroundColor = UIColor.blue
+            faceResoultionMemoryView.addSubview(pastResoultionView)
         }
     }
 
