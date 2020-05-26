@@ -19,7 +19,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var changeNum = 0
     var callibrationUseBool = true
 
-    var inputMethodString = "velocity"
+    var inputMethodString = "position"
 
     // 顔を認識できている描画するView
     @IBOutlet var tracking: UIView!
@@ -284,16 +284,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var LPFRatio: CGFloat = 0.9
 
     var maxValueR: CGFloat = 0
+    var noiseThreshold: CGFloat = 0.8
     // right scroll
     private func rightScrollMainThread(ratio: CGFloat) {
         DispatchQueue.main.async {
             if self.myCollectionView.contentOffset.x > 6000 {
                 return
             }
+            if (ratio - self.lastValueL > self.noiseThreshold) || (self.lastValueL - ratio > self.noiseThreshold) {
+                return
+            }
+//            if (self.lastValueL < ratio - self.noiseThreshold) || (self.lastValueL > ratio - self.noiseThreshold) {
+//                return
+//            }
             self.functionalExpression.value = Float(ratio)
             self.functionalExpressionLabel.text = String(Float(ratio))
+
             let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
             self.lastValueL = outPutLPF
+
             if self.inputMethodString == "velocity" {
                 let changedRatio = self.scrollRatioChange(ratio)
                 self.myCollectionView.contentOffset = CGPoint(x: self.myCollectionView.contentOffset.x + 10 * changedRatio * CGFloat(self.ratioChange), y: 0)
@@ -313,6 +322,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     private func leftScrollMainThread(ratio: CGFloat) {
         DispatchQueue.main.async {
             if self.myCollectionView.contentOffset.x < 0 {
+                return
+            }
+            if (self.lastValueL < ratio - self.noiseThreshold) || (self.lastValueL > ratio - self.noiseThreshold) {
                 return
             }
             self.functionalExpression.value = -Float(ratio)
@@ -465,7 +477,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                 self.time = 0
             }
         }
-
+        let eyeDownL = faceAnchor.blendShapes[.eyeBlinkLeft] as! Double
+        let eyeDownR = faceAnchor.blendShapes[.eyeBlinkRight] as! Double
+        // print(eyeDownL)
+        if (eyeDownL > 0.3) || eyeDownR > 0.3 {
+            return
+        }
         // CSVを作るデータに足していく
         if dataAppendBool == true {
             DispatchQueue.main.async {
@@ -520,6 +537,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             DispatchQueue.main.async {
                 self.buttonLabel.setTitle("mouthHalfSmile", for: .normal)
             }
+
             let cheekSquintLeft = faceAnchor.blendShapes[.mouthSmileLeft] as! Float
             let cheekSquintRight = faceAnchor.blendShapes[.mouthSmileRight] as! Float
             var cheekR: Float = 0
