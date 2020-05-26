@@ -44,7 +44,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         changeNum = changeNum + 1
         i = 0
         time = 0
-        goalLabel.text = String(goalPositionInt[i])
+        goalLabel.text = String(resolutionPositionInt[i])
     }
 
     // 下を向いている度合いを示す
@@ -98,7 +98,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         nowgoal_Data = []
         i = 0
         time = 0
-        goalLabel.text = String(goalPositionInt[i])
+        goalLabel.text = String(resolutionPositionInt[i])
         myCollectionView.contentOffset.x = firstStartPosition
         userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
         dataAppendBool = true
@@ -109,7 +109,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         // nowgoal_Data = []
         i = 0
         time = 0
-        goalLabel.text = String(goalPositionInt[i])
+        goalLabel.text = String(resolutionPositionInt[i])
         // myCollectionView.contentOffset.x = firstStartPosition
         // userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
         dataAppendBool = true
@@ -180,9 +180,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     var resolutionPositionInt = [Int]()
     var resolutionPosition = [Float]()
-
+    var resoultionVarSideMaxNumber: Int = 15
     func addResolutionMemoryView() {
-        for i in 1 ... 15 {
+        for i in 1 ... resoultionVarSideMaxNumber {
             let pastResoultionView = UIView()
             let x = faceResoultionMemoryView.frame.size.width / 2
             let y = faceResoultionMemoryView.frame.origin.y
@@ -190,12 +190,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             pastResoultionView.frame.origin.y = 0
             pastResoultionView.frame.size.width = 10
             pastResoultionView.frame.size.height = resoultionBar.frame.size.height
-            pastResoultionView.backgroundColor = UIColor(red: 0, green: 0.7, blue: 0.3, alpha: 0.3)
+            pastResoultionView.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.3, alpha: 0.3)
             faceResoultionMemoryView.addSubview(pastResoultionView)
             resolutionPositionInt.append(i)
-            resolutionPosition.append(Float(pastResoultionView.frame.origin.x))
+            resolutionPosition.append(Float(pastResoultionView.frame.origin.x + pastResoultionView.frame.size.width / 2))
         }
-        for i in 1 ... 15 {
+        for i in 1 ... resoultionVarSideMaxNumber {
             let pastResoultionView = UIView()
             let x = faceResoultionMemoryView.frame.size.width / 2
             let y = faceResoultionMemoryView.frame.origin.y
@@ -203,17 +203,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             pastResoultionView.frame.origin.y = 0
             pastResoultionView.frame.size.width = 10
             pastResoultionView.frame.size.height = resoultionBar.frame.size.height
-            pastResoultionView.backgroundColor = UIColor(red: 0, green: 0.7, blue: 0.3, alpha: 0.3)
+            pastResoultionView.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.3, alpha: 0.3)
             faceResoultionMemoryView.addSubview(pastResoultionView)
-            resolutionPositionInt.append(-i)
-            resolutionPosition.append(Float(pastResoultionView.frame.origin.x))
+            resolutionPositionInt.append(15 + i)
+            resolutionPosition.append(Float(pastResoultionView.frame.origin.x + pastResoultionView.frame.size.width / 2))
         }
         print(resolutionPosition)
         print(resolutionPositionInt)
         resoultionBar.frame.origin.x = faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2
-        resoultionBar.frame.origin.y = 0
-        resoultionBar.frame.size.width = 5
-        resoultionBar.frame.size.height = resoultionBar.frame.size.height
+        resoultionBar.frame.origin.y = -30
+        resoultionBar.frame.size.width = 1
+        resoultionBar.frame.size.height = resoultionBar.frame.size.height + 60
         resoultionBar.backgroundColor = UIColor.black
         faceResoultionMemoryView.addSubview(resoultionBar)
     }
@@ -324,7 +324,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             if self.myCollectionView.contentOffset.x < 0 {
                 return
             }
-            if (self.lastValueL < ratio - self.noiseThreshold) || (self.lastValueL > ratio - self.noiseThreshold) {
+            if (ratio - self.lastValueL > self.noiseThreshold) || (self.lastValueL - ratio > self.noiseThreshold) {
                 return
             }
             self.functionalExpression.value = -Float(ratio)
@@ -432,26 +432,53 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                 }
             }
         }
+        func createSuccessResolutionView(number: Int) {
+            let SuccessResolutionView = UIView()
+            var x = resolutionPosition[number]
+            var y = 50
+            SuccessResolutionView.frame.origin.x = CGFloat(x - 5)
+            SuccessResolutionView.frame.origin.y = CGFloat(0)
+            SuccessResolutionView.frame.size.width = 10
+            SuccessResolutionView.frame.size.height = resoultionBar.frame.size.height
+            SuccessResolutionView.backgroundColor = UIColor(red: 0, green: 0.2, blue: 0.6, alpha: 0.8)
+            faceResoultionMemoryView.addSubview(SuccessResolutionView)
 
-        let goal = goalPosition[self.i]
+            let nextResolutionView = UIView()
+            if number < resolutionPositionInt.count {
+                x = resolutionPosition[number + 1]
+                y = 50
+                nextResolutionView.frame.origin.x = CGFloat(x - 5)
+                nextResolutionView.frame.origin.y = CGFloat(0)
+                nextResolutionView.frame.size.width = 10
+                nextResolutionView.frame.size.height = resoultionBar.frame.size.height
+                nextResolutionView.backgroundColor = UIColor(red: 0, green: 0.8, blue: 0.1, alpha: 0.3)
+                faceResoultionMemoryView.addSubview(nextResolutionView)
+            }
+        }
+
+        // let goal = goalPosition[self.i]
+        let goal = CGFloat(resolutionPosition[self.i])
         DispatchQueue.main.async {
             self.myCollectionViewPosition = self.myCollectionView.contentOffset.x
+            let nowPosition = self.resoultionBar.frame.origin.x + self.resoultionBar.frame.size.width / 2
             // 目標との距離が近くなったら
-            if goal - 50 < Float(self.myCollectionViewPosition), Float(self.myCollectionViewPosition) < goal {
+            print(nowPosition, "goal:", goal)
+            if nowPosition - goal < 5, goal - nowPosition < 5 {
                 print("クリア")
                 self.time = self.time + 1
                 self.timeCount.value = Float(self.time)
                 if self.time > 60 {
+                    createSuccessResolutionView(number: self.i)
                     print("クリア2")
                     AudioServicesPlaySystemSound(self.sound)
-                    if self.i < goalPositionInt.count - 1 {
+                    if self.i < self.resolutionPositionInt.count - 1 {
                         self.i = self.i + 1
                         self.timeCount.value = 0
                         self.buttonLabel.backgroundColor = UIColor.blue
-                        if self.i == goalPositionInt.count - 1 {
-                            self.goalLabel.text = "次:" + String(goalPositionInt[self.i])
+                        if self.i == self.resolutionPositionInt.count - 1 {
+                            self.goalLabel.text = "次:" + String(self.resolutionPositionInt[self.i])
                         } else {
-                            self.goalLabel.text = "次:" + String(goalPositionInt[self.i]) + "---次の次:" + String(goalPositionInt[self.i + 1])
+                            self.goalLabel.text = "次:" + String(self.resolutionPositionInt[self.i]) + "---次の次:" + String(self.resolutionPositionInt[self.i + 1])
                         }
                     } else {
                         self.myCollectionView.contentOffset.x = firstStartPosition
@@ -489,7 +516,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                 if self.i > 0 {
                     // self.tapData.append([(Float(self.tableViewPosition)),(self.goalPosition[self.i])])
                     self.nowgoal_Data.append(Float(self.myCollectionViewPosition + 25))
-                    self.nowgoal_Data.append(Float(self.goalPosition[self.i]))
+                    self.nowgoal_Data.append(Float(self.resolutionPositionInt[self.i]))
                 }
             }
         }

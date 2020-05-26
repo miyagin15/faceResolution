@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 // let goalPositionInt: [Int] = [9, 11, 8, 12, 7, 13, 40, 13]
-let goalPositionInt: [Int] = [9, 10, 8, 11, 7, 12, 30, 12, 9]
+let goalPositionInt: [Int] = [1, 10, 8, 11, 7, 12, 30, 12, 9]
 let firstStartPosition: CGFloat = 800
 let thresholdPositionInput: CGFloat = 0.05
 class Utility {
