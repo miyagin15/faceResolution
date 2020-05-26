@@ -135,6 +135,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     @IBOutlet var resoultionBar: UIView!
 
+    @IBOutlet var resolutionTimeSlider: UISlider!
+
     private var resolutinMoveView: UIView!
     // var NetWork = NetWorkViewController()
     // ゴールの目標セルを決める
@@ -153,6 +155,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var depthImageView: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        resolutionTimeSlider.maximumValue = 3
+        resolutionTimeSlider.minimumValue = 0
         // depthMap generate by code
 //        depthImageView = UIImageView()
 //        depthImageView!.frame = CGRect(x: 550, y: 280, width: 640, height: 480)
@@ -170,12 +174,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
         //timeInterval秒に一回update関数を動かす
         _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
+        //timeInterval秒に一回update関数を動かす
+//        _ = Timer.scheduledTimer(timeInterval: 1/60, target: self, selector: #selector(ViewController.reslotionUpdate), userInfo: nil, repeats: true)
     }
 
+    var stopTime = 0
+    var stopTime60fps = 0
+    var stopBool = false
+
     @objc func update() {
+        if stopBool {
+            stopTime = stopTime + 1
+        }
+        print(stopTime)
         DispatchQueue.main.async {
             self.tracking.backgroundColor = UIColor.white
         }
+    }
+
+    @objc func reslotionUpdate() {
+        if stopBool {
+            stopTime60fps = stopTime60fps + 1
+        }
+        print(stopTime60fps)
     }
 
     var resolutionPositionInt = [Int]()
@@ -281,7 +302,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     var lastValueR: CGFloat = 0
     // LPFの比率
-    var LPFRatio: CGFloat = 0.9
+    var LPFRatio: CGFloat = 0.95
 
     var maxValueR: CGFloat = 0
     var noiseThreshold: CGFloat = 0.8
@@ -401,6 +422,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var before_cheek_left: Float = 0
     var after_cheek_left: Float = 0
     let sound: SystemSoundID = 1013
+    let soundFailed: SystemSoundID = 1000
 
     var dataAppendBool = true
 
@@ -432,7 +454,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                 }
             }
         }
-        func createSuccessResolutionView(number: Int) {
+        func createResolutionView(number: Int, withinTimeBool: Bool) {
             let SuccessResolutionView = UIView()
             var x = resolutionPosition[number]
             var y = 50
@@ -440,11 +462,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             SuccessResolutionView.frame.origin.y = CGFloat(0)
             SuccessResolutionView.frame.size.width = 10
             SuccessResolutionView.frame.size.height = resoultionBar.frame.size.height
-            SuccessResolutionView.backgroundColor = UIColor(red: 0, green: 0.2, blue: 0.6, alpha: 0.8)
+            if withinTimeBool == true {
+                SuccessResolutionView.backgroundColor = UIColor(red: 0, green: 0.2, blue: 0.6, alpha: 0.8)
+            } else if withinTimeBool == false {
+                SuccessResolutionView.backgroundColor = UIColor(red: 1, green: 0.2, blue: 0.0, alpha: 0.8)
+            }
             faceResoultionMemoryView.addSubview(SuccessResolutionView)
 
             let nextResolutionView = UIView()
-            if number < resolutionPositionInt.count {
+            if number < resolutionPositionInt.count - 1 {
                 x = resolutionPosition[number + 1]
                 y = 50
                 nextResolutionView.frame.origin.x = CGFloat(x - 5)
@@ -459,16 +485,35 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         // let goal = goalPosition[self.i]
         let goal = CGFloat(resolutionPosition[self.i])
         DispatchQueue.main.async {
+            self.resolutionTimeSlider.value = Float(self.stopTime)
+
+            // ３秒以内にできなかった場合
+            if self.stopTime > 3 {
+                self.stopTime = 0
+                createResolutionView(number: self.i, withinTimeBool: false)
+                AudioServicesPlaySystemSound(self.soundFailed)
+                if self.i < self.resolutionPositionInt.count - 1 {
+                    self.i = self.i + 1
+                } else {
+                    self.stopBool = true
+                    self.stopTime = 10
+                }
+                self.stopBool = false
+            }
+
             self.myCollectionViewPosition = self.myCollectionView.contentOffset.x
             let nowPosition = self.resoultionBar.frame.origin.x + self.resoultionBar.frame.size.width / 2
             // 目標との距離が近くなったら
-            print(nowPosition, "goal:", goal)
+            // print(nowPosition, "goal:", goal)
             if nowPosition - goal < 5, goal - nowPosition < 5 {
+                self.stopBool = true
                 print("クリア")
                 self.time = self.time + 1
                 self.timeCount.value = Float(self.time)
                 if self.time > 60 {
-                    createSuccessResolutionView(number: self.i)
+                    self.stopBool = false
+                    self.stopTime = 0
+                    createResolutionView(number: self.i, withinTimeBool: true)
                     print("クリア2")
                     AudioServicesPlaySystemSound(self.sound)
                     if self.i < self.resolutionPositionInt.count - 1 {
