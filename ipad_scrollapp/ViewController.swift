@@ -113,14 +113,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         // myCollectionView.contentOffset.x = firstStartPosition
         // userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
         dataAppendBool = true
-        let ratio = userDefaults.float(forKey: "ratio")
-        nowgoal_Data.append(Float(myCollectionViewPosition + 25))
-        nowgoal_Data.append(Float(ratio))
-        AudioServicesPlaySystemSound(sound)
-        let pastResoultionView = UIView()
-        pastResoultionView.frame = resoultionBar.frame
-        pastResoultionView.backgroundColor = UIColor.red
-        view.addSubview(pastResoultionView)
+//        let ratio = userDefaults.float(forKey: "ratio")
+//        nowgoal_Data.append(Float(myCollectionViewPosition + 25))
+//        nowgoal_Data.append(Float(ratio))
+//        AudioServicesPlaySystemSound(sound)
+//        let pastResoultionView = UIView()
+//        pastResoultionView.frame = resoultionBar.frame
+//        pastResoultionView.backgroundColor = UIColor.red
+//        view.addSubview(pastResoultionView)
     }
 
     @IBOutlet var repeatNumberLabel: UILabel!
@@ -134,6 +134,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     }()
 
     @IBOutlet var resoultionBar: UIView!
+
+    private var resolutinMoveView: UIView!
     // var NetWork = NetWorkViewController()
     // ゴールの目標セルを決める
     // var goalPositionInt: [Int] = [15, 14, 13, 12, 11, 10, 20, 16, 17, 18, 19]
@@ -176,18 +178,44 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         }
     }
 
+    var resolutionPositionInt = [Int]()
+    var resolutionPosition = [Float]()
+
     func addResolutionMemoryView() {
-        for i in 0 ... 30 {
+        for i in 1 ... 15 {
             let pastResoultionView = UIView()
-            let x = faceResoultionMemoryView.frame.origin.x
+            let x = faceResoultionMemoryView.frame.size.width / 2
             let y = faceResoultionMemoryView.frame.origin.y
             pastResoultionView.frame.origin.x = x + CGFloat(i * 20)
             pastResoultionView.frame.origin.y = 0
             pastResoultionView.frame.size.width = 10
             pastResoultionView.frame.size.height = resoultionBar.frame.size.height
-            pastResoultionView.backgroundColor = UIColor.blue
+            pastResoultionView.backgroundColor = UIColor(red: 0, green: 0.7, blue: 0.3, alpha: 0.3)
             faceResoultionMemoryView.addSubview(pastResoultionView)
+            resolutionPositionInt.append(i)
+            resolutionPosition.append(Float(pastResoultionView.frame.origin.x))
         }
+        for i in 1 ... 15 {
+            let pastResoultionView = UIView()
+            let x = faceResoultionMemoryView.frame.size.width / 2
+            let y = faceResoultionMemoryView.frame.origin.y
+            pastResoultionView.frame.origin.x = x - CGFloat(i * 20)
+            pastResoultionView.frame.origin.y = 0
+            pastResoultionView.frame.size.width = 10
+            pastResoultionView.frame.size.height = resoultionBar.frame.size.height
+            pastResoultionView.backgroundColor = UIColor(red: 0, green: 0.7, blue: 0.3, alpha: 0.3)
+            faceResoultionMemoryView.addSubview(pastResoultionView)
+            resolutionPositionInt.append(-i)
+            resolutionPosition.append(Float(pastResoultionView.frame.origin.x))
+        }
+        print(resolutionPosition)
+        print(resolutionPositionInt)
+        resoultionBar.frame.origin.x = faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2
+        resoultionBar.frame.origin.y = 0
+        resoultionBar.frame.size.width = 5
+        resoultionBar.frame.size.height = resoultionBar.frame.size.height
+        resoultionBar.backgroundColor = UIColor.black
+        faceResoultionMemoryView.addSubview(resoultionBar)
     }
 
     // Cellの総数を返す
@@ -272,36 +300,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            } else if self.inputMethodString == "position" {
 //                self.myCollectionView.contentOffset = CGPoint(x: 300 * ratio * CGFloat(self.ratioChange), y: 0)
             } else if self.inputMethodString == "position" {
-                self.resoultionBar.transform = CGAffineTransform(translationX: outPutLPF * 250, y: 0)
+                self.resoultionBar.transform = CGAffineTransform(translationX: outPutLPF * 300, y: 0)
                 self.userDefaults.set(ratio, forKey: "ratio")
-                self.myCollectionView.contentOffset = CGPoint(x: CGFloat(2500) + 300 * outPutLPF * CGFloat(self.ratioChange), y: 0)
-
                 return
-                if self.maxValueR < outPutLPF {
-                    self.maxValueR = outPutLPF
-                    let ClutchPosition = self.userDefaults.float(forKey: "beforeCollectionViewPosition")
-                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition) + 100 * outPutLPF * CGFloat(self.ratioChange), y: 0)
-                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
-                } else if outPutLPF < 0.05 {
-                    self.maxValueR = 0.05
-                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition), y: 0)
-                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "beforeCollectionViewPosition")
-                } else if self.maxValueR - 0.3 > outPutLPF {
-                    self.maxValueR = outPutLPF
-                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition), y: 0)
-                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "beforeCollectionViewPosition")
-                }
-
-//                if self.ratioLookDown > 0.65 {
-//                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
-//                } else {
-//                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-//                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition) + 100 * outPutLPF * CGFloat(self.ratioChange), y: 0)
-//                }
             }
-            // self.tableView.contentOffset = CGPoint(x: 0, y: self.tableView.contentOffset.y + 10*ratio*CGFloat(self.ratioChange))
         }
     }
 
@@ -323,40 +325,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            } else if self.inputMethodString == "position" {
 //                self.myCollectionView.contentOffset = CGPoint(x: -300 * ratio * CGFloat(self.ratioChange), y: 0)
             } else if self.inputMethodString == "position" {
-                self.resoultionBar.transform = CGAffineTransform(translationX: -outPutLPF * 250, y: 0)
+                self.resoultionBar.transform = CGAffineTransform(translationX: -outPutLPF * 300, y: 0)
                 self.userDefaults.set(ratio, forKey: "ratio")
-                self.myCollectionView.contentOffset = CGPoint(x: CGFloat(2500) - 300 * outPutLPF * CGFloat(self.ratioChange), y: 0)
                 return
-                if self.maxValueL < outPutLPF {
-                    self.maxValueL = outPutLPF
-                    let ClutchPosition = self.userDefaults.float(forKey: "beforeCollectionViewPosition")
-                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition) - 100 * outPutLPF * CGFloat(self.ratioChange), y: 0)
-                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
-                } else if outPutLPF < 0.05 {
-                    self.maxValueL = 0.05
-                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition), y: 0)
-                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "beforeCollectionViewPosition")
-//                } else if self.maxValueL > 0.8, outPutLPF < 0.4 {
-//                    self.maxValueL = outPutLPF
-//                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-//                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition), y: 0)
-//                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "beforeCollectionViewPosition")
-//                }
-                } else if self.maxValueL - 0.3 > outPutLPF {
-                    self.maxValueL = outPutLPF
-                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition), y: 0)
-                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "beforeCollectionViewPosition")
-                }
-
-//                if self.ratioLookDown > 0.65 {
-//                    self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
-//                } else {
-//                    let ClutchPosition = self.userDefaults.float(forKey: "nowCollectionViewPosition")
-//                    self.myCollectionView.contentOffset = CGPoint(x: CGFloat(ClutchPosition) - 100 * outPutLPF * CGFloat(self.ratioChange), y: 0)
-//                }
-//                self.myCollectionView.contentOffset = CGPoint(x: -100 * outPutLPF * CGFloat(self.ratioChange), y: 0)
             }
         }
     }
@@ -419,143 +390,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var after_cheek_left: Float = 0
     let sound: SystemSoundID = 1013
 
-    var faceNoseInWorld: SCNVector3 = SCNVector3(0, 0, 0)
-    var faceNoseInscreenPos: SCNVector3 = SCNVector3(0, 0, 0)
-    var faceLeftCheekInWorld: SCNVector3 = SCNVector3(0, 0, 0)
-    var faceLeftCheekInscreenPos: SCNVector3 = SCNVector3(0, 0, 0)
-    var faceRightCheekInWorld: SCNVector3 = SCNVector3(0, 0, 0)
-    var faceRightCheekInscreenPos: SCNVector3 = SCNVector3(0, 0, 0)
-
-    var distanceAtXYPoint: Float32 = Float32(0)
     var dataAppendBool = true
-    let widthIpad: Float = 1194.0
-    let heightIpad: Float = 834.0
 
-    let widthRatio: Float = 0.536
-    let heightRatio: Float = 0.57554
-    var depthRightCheek: Float = 0
-    var depthLeftCheek: Float = 0
-    var ratioLookDown: Float = 0
     var handsSliderValue: Float = 0
     var workTime: Float = 0
     var transTrans = CGAffineTransform() // 移動
     func renderer(_: SCNSceneRenderer, didUpdate _: SCNNode, for anchor: ARAnchor) {
         guard let faceAnchor = anchor as? ARFaceAnchor else {
             return
-        }
-        if 2 == 1 {
-            // 左447 右600 鼻８
-            faceNoseInWorld = SCNVector3(faceAnchor.transform.columns.3.x, faceAnchor.transform.columns.3.y, faceAnchor.transform.columns.3.z)
-            faceNoseInscreenPos = sceneView.projectPoint(faceNoseInWorld)
-
-            faceLeftCheekInWorld = SCNVector3(faceAnchor.transform.columns.3.x + faceAnchor.geometry.vertices[449][0], faceAnchor.transform.columns.3.y + faceAnchor.geometry.vertices[449][1], faceAnchor.transform.columns.3.z)
-            faceLeftCheekInscreenPos = sceneView.projectPoint(faceLeftCheekInWorld)
-
-            faceRightCheekInWorld = SCNVector3(faceAnchor.transform.columns.3.x + faceAnchor.geometry.vertices[876][0], faceAnchor.transform.columns.3.y + faceAnchor.geometry.vertices[876][1], faceAnchor.transform.columns.3.z)
-            faceRightCheekInscreenPos = sceneView.projectPoint(faceRightCheekInWorld)
-
-            // print(faceCheekInWorld, faceNoseInWorld)
-            // print(faceCheekInscreenPos, faceNoseInscreenPos)
-            //        print("1", faceAnchor.geometry.vertices[8][0], faceAnchor.geometry.vertices[447][0], faceAnchor.transform.columns.3.x, faceAnchor.transform.columns.3.y, faceAnchor.geometry.vertices[8][0], faceAnchor.geometry.vertices[447][1])
-            //        print("2", faceAnchor.transform.columns.3.x + faceAnchor.geometry.vertices[447][0], faceAnchor.transform.columns.3.y + faceAnchor.geometry.vertices[447][1])
-            //        print("3", faceAnchor.transform.columns.3.x, faceAnchor.transform.columns.3.y)
-            // 鼻トラッキング
-            //        DispatchQueue.main.async {
-            //            let TestView = UIView(frame: CGRect(x: CGFloat(self.faceRightCheekInscreenPos.x), y: CGFloat(self.faceRightCheekInscreenPos.y), width: 10, height: 10))
-            //            let bgColor = UIColor.blue
-            //            TestView.backgroundColor = bgColor
-            //            self.view.addSubview(TestView)
-            //            // print(CGFloat(faceNoseInscreenPos.x), CGFloat(faceNoseInscreenPos.y))
-            //            // self.transTrans = CGAffineTransform(translationX: CGFloat(faceNoseInscreenPos.x), y: CGFloat(faceNoseInscreenPos.y))
-            //            self.tracking.transform = self.transTrans
-            //        }
-
-            // print(faceNoseInscreenPos) // 横にしてx:0~1200, y:0~740  中心は600,420  たて400,600
-            // depth を直接取得          print(view.bounds)→1194*834
-            guard let frame = sceneView.session.currentFrame else { return }
-            let depthData = frame.capturedDepthData?.converting(toDepthDataType: kCVPixelFormatType_DepthFloat32)
-            let depthDataMap = depthData?.depthDataMap
-            print(depthDataMap)
-            if depthDataMap == nil {
-            } else if depthDataMap != nil {
-                DispatchQueue.main.async {
-                    // let uiImage = UIImageView()
-                    let depthDataImgae = CIImage(cvPixelBuffer: depthDataMap!)
-                    let uiImage = UIImage(ciImage: depthDataImgae)
-//                    uiImage.image = UIImage(ciImage: depthDataImgae)
-//                    // 画像のフレームを設定
-//                    uiImage.frame = CGRect(x: 0, y: 0, width: 640, height: 480)
-//                    // 画像を中央に設定
-//                    uiImage.center = CGPoint(x: 500 / 2, y: 500 / 2)
-                    // 設定した画像をスクリーンに表示する
-                    // self.view.addSubview(uiImage)
-                    self.depthImageView.image = uiImage
-                    self.depthImageView.setNeedsLayout()
-                }
-                let width = CVPixelBufferGetWidth(depthDataMap!) // 640  ipad2,388 x 1,668
-                let height = CVPixelBufferGetHeight(depthDataMap!) // 480
-                // let baseAddress = CVPixelBufferGetBaseAddress(depthDataMap!)
-                // let floatBuffer = UnsafeMutablePointer<Float32>(baseAddress!)
-                CVPixelBufferLockBaseAddress(depthDataMap!, CVPixelBufferLockFlags(rawValue: 0))
-                let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthDataMap!), to: UnsafeMutablePointer<Float32>.self)
-                // print(floatBuffer)
-                // let distanceAtXYPoint = floatBuffer[Int(x * y)]
-
-                distanceAtXYPoint = floatBuffer[Int(faceNoseInscreenPos.x * faceNoseInscreenPos.y / 4)]
-                distanceAtXYPoint = floatBuffer[Int(faceNoseInscreenPos.x * widthRatio) * Int(faceNoseInscreenPos.y * heightRatio)]
-
-                // print(floatBuffer[(width / 2) * (height / 2)])
-                // print(width, height)
-                //            for i in 640 * 320 ... 640 * 321 {
-                //                print(i, floatBuffer[i])
-                //            }
-
-                // print(distanceAtXYPoint)
-
-                // print(floatBuffer[Int(faceRightCheekInscreenPos.x * faceRightCheekInscreenPos.y / 4)])
-                // print(floatBuffer[Int(faceLeftCheekInscreenPos.x * faceLeftCheekInscreenPos.y / 4)])
-
-                // うまくdepthが取れた
-                //            for yMap in 0 ..< height {
-                //                let rowData = CVPixelBufferGetBaseAddress(depthDataMap!)! + yMap * CVPixelBufferGetBytesPerRow(depthDataMap!)
-                //                let data = UnsafeMutableBufferPointer<Float32>(start: rowData.assumingMemoryBound(to: Float32.self), count: width)
-                //                for index in 0 ..< width {
-                //                    let depth = data[index]
-                //                    print("yMap:", yMap, "width:", index, "depth:", data[index])
-                //                    if depth.isNaN {
-                //                        data[index] = 1.0
-                //                    } else if depth <= 1.0 {
-                //                        // 前景
-                //                        data[index] = 1.0
-                //                    } else {
-                //                        // 背景
-                //                        data[index] = 0.0
-                //                    }
-                //                }
-                //            }
-
-                // print(Int(faceNoseInscreenPos.x), Int(faceNoseInscreenPos.y))
-                // print(Int(faceNoseInscreenPos.x * widthRatio), Int(faceNoseInscreenPos.y * heightRatio))
-//                print(Int(faceNoseInscreenPos.x * (Float(width) / widthIpad)), Int(faceNoseInscreenPos.y * Float(height) / heightIpad))
-                let rowDataNose = CVPixelBufferGetBaseAddress(depthDataMap!)! + Int(faceNoseInscreenPos.y * heightRatio) * CVPixelBufferGetBytesPerRow(depthDataMap!)
-                let dataNose = UnsafeMutableBufferPointer<Float32>(start: rowDataNose.assumingMemoryBound(to: Float32.self), count: width)
-                // print("Nose:", dataNose[Int(faceNoseInscreenPos.x * widthRatio)])
-
-                let rowDataCheek = CVPixelBufferGetBaseAddress(depthDataMap!)! + Int(faceLeftCheekInscreenPos.y * heightRatio) * CVPixelBufferGetBytesPerRow(depthDataMap!)
-                let dataCheek = UnsafeMutableBufferPointer<Float32>(start: rowDataCheek.assumingMemoryBound(to: Float32.self), count: width)
-
-                // print(dataNose[Int(faceNoseInscreenPos.x / 2)])
-
-//                print("Left:", dataCheek[Int(faceLeftCheekInscreenPos.x * widthRatio)])
-//                print("Right:", dataCheek[Int(faceRightCheekInscreenPos.x * widthRatio)])
-
-                depthRightCheek = dataCheek[Int(faceRightCheekInscreenPos.x * widthRatio)] - dataNose[Int(faceNoseInscreenPos.x * widthRatio)]
-                depthLeftCheek = dataCheek[Int(faceLeftCheekInscreenPos.x * widthRatio)] - dataNose[Int(faceNoseInscreenPos.x * widthRatio)]
-
-                // print("Left-Nose:", dataCheek[Int(faceLeftCheekInscreenPos.x * widthRatio)] - dataNose[Int(faceNoseInscreenPos.x * widthRatio)])
-                // print("Right-Nose:", dataCheek[Int(faceRightCheekInscreenPos.x * widthRatio)] - dataNose[Int(faceNoseInscreenPos.x * widthRatio)])
-                CVPixelBufferUnlockBaseAddress(depthDataMap!, CVPixelBufferLockFlags(rawValue: 0))
-            }
         }
 
         // print(faceAnchor.transform.columns.3)
@@ -566,14 +408,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             self.inputClutchView.backgroundColor = UIColor.red
             self.tracking.backgroundColor = UIColor.blue
         }
-        // 顔のxyz位置
-        // print(faceAnchor.transform.columns.3.x, faceAnchor.transform.columns.3.y, faceAnchor.transform.columns.3.z)
-
-//        // 下を向いている時の処理
-//        ratioLookDown = faceAnchor.transform.columns.1.z
-//        DispatchQueue.main.async {
-//            self.orietationLabel.text = String(self.ratioLookDown)
-//        }
 
         //  認識していたら青色に
         DispatchQueue.main.async {
@@ -797,23 +631,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             var rightCheek: Float = 0
             return
             if callibrationUseBool == true {
-//                let mouthRollUp = Utility.faceAURangeChange(faceAUVertex: mouthRollUpper, maxFaceAUVertex: callibrationPosition[10], minFaceAUVertex: callibrationOrdinalPosition[10])
-//                print("mouthRollUp", mouthRollUp)
-//                let mouthRollDown = Utility.faceAURangeChange(faceAUVertex: mouthRollLower, maxFaceAUVertex: callibrationPosition[11], minFaceAUVertex: callibrationOrdinalPosition[11])
-//                print("mouthRollDown", mouthRollDown)
-                leftCheek = Utility.faceAURangeChange(faceAUVertex: depthLeftCheek, maxFaceAUVertex: callibrationPosition[10], minFaceAUVertex: callibrationOrdinalPosition[10])
-                print("rawdata:L,R", depthLeftCheek, depthRightCheek)
-                print("leftCheek", leftCheek)
-                rightCheek = Utility.faceAURangeChange(faceAUVertex: depthRightCheek, maxFaceAUVertex: callibrationPosition[11], minFaceAUVertex: callibrationOrdinalPosition[11])
-                print("rightCheek", rightCheek)
-//                if mouthRollUp < 0.1, mouthRollDown < 0.1 {
-//                    return
-//                }
-//                if mouthRollDown > mouthRollUp {
-//                    leftScrollMainThread(ratio: CGFloat(mouthRollDown))
-//                } else {
-//                    rightScrollMainThread(ratio: CGFloat(mouthRollUp))
-//                }
             } else {
                 if mouthRollUpper < 0.1, mouthRollLower < 0.1 {
                     return
@@ -839,25 +656,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             } else {
                 leftScrollMainThread(ratio: CGFloat(-handsSliderValue))
             }
-//            if cheekSquintLeft > cheekSquintRight {
-//                rightScrollMainThread(ratio: CGFloat(cheekSquintLeft))
-//            } else {
-//                leftScrollMainThread(ratio: CGFloat(cheekSquintRight))
-//            }
-
-//        default:
-//            buttonLabel.setTitle("Rip", for: .normal)
-//            if let mouthLeft = faceAnchor.blendShapes[.cheekSquintLeft] as? Float {
-//                if mouthLeft > 0.1 {
-//                    self.scrollDownInMainThread(ratio: CGFloat(mouthLeft))
-//                }
-//            }
-//
-//            if let mouthRight = faceAnchor.blendShapes[.cheekSquintRight] as? Float {
-//                if mouthRight > 0.1 {
-//                    self.scrollUpInMainThread(ratio: CGFloat(mouthRight))
-//                }
-//            }
         }
     }
 
