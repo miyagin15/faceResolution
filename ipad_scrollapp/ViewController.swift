@@ -36,7 +36,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     // スクロール量を調整するSlider
     var ratioChange: Float = 5.0
     @IBAction func ratioChanger(_ sender: UISlider) {
-        ratioChange = sender.value * 10
+        ratioChange = sender.value * 1
     }
 
     @IBOutlet var buttonLabel: UIButton!
@@ -323,7 +323,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             self.functionalExpressionLabel.text = String(Float(ratio))
 
             // let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
-            let outPutLPF = self.ratioChange * CGFloat(self.ratioChange) + (1 - CGFloat(self.ratioChange)) * ratio
+            let nowLPFratio = 1 - CGFloat(self.ratioChange)
+            print(self.ratioChange)
+            let outPutLPF = CGFloat(self.ratioChange) * self.lastValueL + nowLPFratio * ratio
             self.lastValueL = outPutLPF
 
             if self.inputMethodString == "velocity" {
