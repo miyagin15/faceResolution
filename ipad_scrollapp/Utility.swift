@@ -136,12 +136,12 @@ class Utility {
             }
         }
 
-        fileStrData += "position,goalPosition\n"
+        fileStrData += "position,goalPosition,goalPositionInt,FAUM\n"
         for i in 1 ... fileArrData.count {
-            if i % 2 != 0 {
+            if i % 4 != 0 {
                 fileStrData += String(fileArrData[i - 1]) + ","
             }
-            if i % 2 == 0 {
+            if i % 4 == 0 {
                 fileStrData += String(fileArrData[i - 1]) + "\n"
             }
         }

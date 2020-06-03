@@ -302,26 +302,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     var lastValueR: CGFloat = 0
     // LPFの比率
-    var LPFRatio: CGFloat = 0.95
+    // var LPFRatio: CGFloat = 0.95
+    var LPFRatio: CGFloat = 0.0
 
     var maxValueR: CGFloat = 0
-    var noiseThreshold: CGFloat = 0.8
+    var noiseThreshold: CGFloat = 0.0
     // right scroll
     private func rightScrollMainThread(ratio: CGFloat) {
         DispatchQueue.main.async {
             if self.myCollectionView.contentOffset.x > 6000 {
                 return
             }
-            if (ratio - self.lastValueL > self.noiseThreshold) || (self.lastValueL - ratio > self.noiseThreshold) {
-                return
-            }
+//            if (ratio - self.lastValueL > self.noiseThreshold) || (self.lastValueL - ratio > self.noiseThreshold) {
+//                return
+//            }
 //            if (self.lastValueL < ratio - self.noiseThreshold) || (self.lastValueL > ratio - self.noiseThreshold) {
 //                return
 //            }
             self.functionalExpression.value = Float(ratio)
             self.functionalExpressionLabel.text = String(Float(ratio))
 
-            let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
+            // let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
+            let outPutLPF = self.ratioChange * CGFloat(self.ratioChange) + (1 - CGFloat(self.ratioChange)) * ratio
             self.lastValueL = outPutLPF
 
             if self.inputMethodString == "velocity" {
@@ -345,9 +347,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             if self.myCollectionView.contentOffset.x < 0 {
                 return
             }
-            if (ratio - self.lastValueL > self.noiseThreshold) || (self.lastValueL - ratio > self.noiseThreshold) {
-                return
-            }
+//            if (ratio - self.lastValueL > self.noiseThreshold) || (self.lastValueL - ratio > self.noiseThreshold) {
+//                return
+//            }
             self.functionalExpression.value = -Float(ratio)
             self.functionalExpressionLabel.text = String(Float(-ratio))
             let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
@@ -429,6 +431,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var handsSliderValue: Float = 0
     var workTime: Float = 0
     var transTrans = CGAffineTransform() // 移動
+
+    var faceActionUnitMovement: Float = 0.0 // facial aciton units movement
     func renderer(_: SCNSceneRenderer, didUpdate _: SCNNode, for anchor: ARAnchor) {
         guard let faceAnchor = anchor as? ARFaceAnchor else {
             return
@@ -559,15 +563,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         if dataAppendBool == true {
             DispatchQueue.main.async {
                 if self.i > 0 {
+                    let nowPosition = self.resoultionBar.frame.origin.x + self.resoultionBar.frame.size.width / 2
                     // self.tapData.append([(Float(self.tableViewPosition)),(self.goalPosition[self.i])])
-                    self.nowgoal_Data.append(Float(self.myCollectionViewPosition + 25))
+                    self.nowgoal_Data.append(Float(nowPosition))
+                    self.nowgoal_Data.append(Float(self.resolutionPosition[self.i]))
                     self.nowgoal_Data.append(Float(self.resolutionPositionInt[self.i]))
+                    self.nowgoal_Data.append(Float(self.faceActionUnitMovement))
                 }
             }
         }
 
         let changeAction = changeNum % 7
-
         switch changeAction {
         case 0:
             DispatchQueue.main.async {
@@ -599,9 +605,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            }
             // print(mouthLeft, mouthRight)
             if mouthLeft > mouthRight {
+                faceActionUnitMovement = -mouthLeft
                 leftScrollMainThread(ratio: CGFloat(mouthLeft))
 
             } else if mouthRight > mouthLeft {
+                faceActionUnitMovement = mouthRight
                 rightScrollMainThread(ratio: CGFloat(mouthRight))
             }
 
@@ -635,8 +643,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                 //                }
             }
             if cheekL > cheekR {
+                faceActionUnitMovement = -cheekL
                 leftScrollMainThread(ratio: CGFloat(cheekL))
             } else {
+                faceActionUnitMovement = cheekR
                 rightScrollMainThread(ratio: CGFloat(cheekR))
             }
 
@@ -669,8 +679,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //                return
 //            }
             if browInnerUp > browDownLeft {
+                faceActionUnitMovement = -browInnerUp
                 leftScrollMainThread(ratio: CGFloat(browInnerUp))
             } else {
+                faceActionUnitMovement = browDownLeft
                 rightScrollMainThread(ratio: CGFloat(browDownLeft))
             }
 
@@ -692,8 +704,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //                 return
 //             }
             if mouthUp > mouthDown {
+                faceActionUnitMovement = -mouthUp
                 leftScrollMainThread(ratio: CGFloat(mouthUp))
             } else {
+                faceActionUnitMovement = mouthDown
                 rightScrollMainThread(ratio: CGFloat(mouthDown))
             }
         case 4:
