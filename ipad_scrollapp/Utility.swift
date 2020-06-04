@@ -87,7 +87,7 @@ class Utility {
         let userDefaults = UserDefaults.standard
         let name: String = userDefaults.string(forKey: "name") ?? "noName"
         let fileName1 = name + "_" + facailAU + "_"
-        let fileName = fileName1 + direction + "_" + inputMethod + ".csv"
+        let fileName = fileName1 + direction + "_" + inputMethod + "_Reslution.csv"
 
         // StringのCSV用データを準備
         // print(fileArrData)

@@ -20,7 +20,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var callibrationUseBool = true
 
     var inputMethodString = "position"
-
+    let timeCountValue = 60 * 4 // 配列の数で時間を判断しているため
     // 顔を認識できている描画するView
     @IBOutlet var tracking: UIView!
 
@@ -34,7 +34,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
     @IBOutlet var sceneView: ARSCNView!
     // スクロール量を調整するSlider
-    var ratioChange: Float = 5.0
+    var ratioChange: Float = 0.9
     @IBAction func ratioChanger(_ sender: UISlider) {
         ratioChange = sender.value * 1
     }
@@ -107,9 +107,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     @IBOutlet var faceResoultionMemoryView: UIView!
     @IBAction func startButton(_: Any) {
         // nowgoal_Data = []
-        i = 0
+        // i = 0
         time = 0
         goalLabel.text = String(resolutionPositionInt[i])
+        AudioServicesPlaySystemSound(sound)
         // myCollectionView.contentOffset.x = firstStartPosition
         // userDefaults.set(myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
         dataAppendBool = true
@@ -186,7 +187,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         if stopBool {
             stopTime = stopTime + 1
         }
-        print(stopTime)
+        // print(stopTime)
         DispatchQueue.main.async {
             self.tracking.backgroundColor = UIColor.white
         }
@@ -196,7 +197,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         if stopBool {
             stopTime60fps = stopTime60fps + 1
         }
-        print(stopTime60fps)
+        // print(stopTime60fps)
     }
 
     var resolutionPositionInt = [Int]()
@@ -216,9 +217,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             resolutionPositionInt.append(i)
             resolutionPosition.append(Float(pastResoultionView.frame.origin.x + pastResoultionView.frame.size.width / 2))
         }
+        // print(faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2)
         for i in 1 ... resoultionVarSideMaxNumber {
             let pastResoultionView = UIView()
-            let x = faceResoultionMemoryView.frame.size.width / 2
+            let x = faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2
             let y = faceResoultionMemoryView.frame.origin.y
             pastResoultionView.frame.origin.x = x - CGFloat(i * 20)
             pastResoultionView.frame.origin.y = 0
@@ -229,13 +231,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             resolutionPositionInt.append(15 + i)
             resolutionPosition.append(Float(pastResoultionView.frame.origin.x + pastResoultionView.frame.size.width / 2))
         }
-        print(resolutionPosition)
-        print(resolutionPositionInt)
+        // print(resolutionPosition)
+        // print(resolutionPositionInt)
+        print(resoultionBar.frame.origin.x)
+        // print(faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2)
         resoultionBar.frame.origin.x = faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2
+        // print(resoultionBar.frame.origin.x)
         resoultionBar.frame.origin.y = -30
         resoultionBar.frame.size.width = 1
         resoultionBar.frame.size.height = resoultionBar.frame.size.height + 60
         resoultionBar.backgroundColor = UIColor.black
+        print(resoultionBar.frame.origin.x)
         faceResoultionMemoryView.addSubview(resoultionBar)
     }
 
@@ -325,8 +331,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             // let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
             let nowLPFratio = 1 - CGFloat(self.ratioChange)
             print(self.ratioChange)
-            let outPutLPF = CGFloat(self.ratioChange) * self.lastValueL + nowLPFratio * ratio
-            self.lastValueL = outPutLPF
+            let outPutLPF = CGFloat(self.ratioChange) * self.lastValueR + nowLPFratio * ratio
+            self.lastValueR = outPutLPF
 
             if self.inputMethodString == "velocity" {
                 let changedRatio = self.scrollRatioChange(ratio)
@@ -354,7 +360,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 //            }
             self.functionalExpression.value = -Float(ratio)
             self.functionalExpressionLabel.text = String(Float(-ratio))
-            let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
+//            let outPutLPF = self.LPFRatio * self.lastValueL + (1 - self.LPFRatio) * ratio
+//            self.lastValueL = outPutLPF
+            let nowLPFratio = 1 - CGFloat(self.ratioChange)
+            let outPutLPF = CGFloat(self.ratioChange) * self.lastValueL + nowLPFratio * ratio
             self.lastValueL = outPutLPF
             if self.inputMethodString == "velocity" {
                 let changedRatio = self.scrollRatioChange(ratio)
@@ -428,7 +437,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     let sound: SystemSoundID = 1013
     let soundFailed: SystemSoundID = 1000
 
-    var dataAppendBool = true
+    var dataAppendBool = false
 
     var handsSliderValue: Float = 0
     var workTime: Float = 0
@@ -451,11 +460,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
 
         //  認識していたら青色に
         DispatchQueue.main.async {
-            if self.nowgoal_Data.count % 120 == 0 {
-                self.orietationLabel.text = String(Float(self.nowgoal_Data.count / 120) - self.workTime)
+            if self.nowgoal_Data.count % self.timeCountValue == 0 {
+                self.orietationLabel.text = String(Float(self.nowgoal_Data.count / self.timeCountValue) - self.workTime)
                 //                self.userDefaults.set(self.myCollectionView.contentOffset.x, forKey: "nowCollectionViewPosition")
                 // print(self.tableView.contentOffset.y)
-                if (Float(self.nowgoal_Data.count / 120) - self.workTime) > 60 {
+                if (Float(self.nowgoal_Data.count / self.timeCountValue) - self.workTime) > 60 {
                     self.inputClutchView.backgroundColor = UIColor.white
                 }
             }
@@ -517,6 +526,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                 self.time = self.time + 1
                 self.timeCount.value = Float(self.time)
                 if self.time > 60 {
+                    if self.i == 14 {
+                        self.dataAppendBool = false
+                    }
                     self.stopBool = false
                     self.stopTime = 0
                     createResolutionView(number: self.i, withinTimeBool: true)
@@ -534,10 +546,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                     } else {
                         self.myCollectionView.contentOffset.x = firstStartPosition
                         if self.repeatNumber != 1 {
-                            self.goalLabel.text = "終了!" + String(Float(self.nowgoal_Data.count / 120) - self.workTime) + "秒かかった"
-                            self.workTime = Float(self.nowgoal_Data.count / 120)
+                            self.goalLabel.text = "終了!" + String(Float(self.nowgoal_Data.count / self.timeCountValue) - self.workTime) + "秒かかった"
+                            self.workTime = Float(self.nowgoal_Data.count / self.timeCountValue)
                         } else {
-                            self.workTime = Float(self.nowgoal_Data.count / 120)
+                            self.workTime = Float(self.nowgoal_Data.count / self.timeCountValue)
                             self.goalLabel.text = "終了." + String(self.workTime) + "sかかった"
                         }
                         self.dataAppendBool = false
@@ -561,10 +573,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         if (eyeDownL > 0.3) || eyeDownR > 0.3 {
             return
         }
+
         // CSVを作るデータに足していく
         if dataAppendBool == true {
             DispatchQueue.main.async {
-                if self.i > 0 {
+                if self.i >= 0 {
                     let nowPosition = self.resoultionBar.frame.origin.x + self.resoultionBar.frame.size.width / 2
                     // self.tapData.append([(Float(self.tableViewPosition)),(self.goalPosition[self.i])])
                     self.nowgoal_Data.append(Float(nowPosition))
