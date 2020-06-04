@@ -204,9 +204,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
     var resolutionPosition = [Float]()
     var resoultionVarSideMaxNumber: Int = 15
     func addResolutionMemoryView() {
+        resoultionBar.frame.size.width = 1
+        resoultionBar.frame.size.height = resoultionBar.frame.size.height + 60
+        resoultionBar.frame.origin.x = faceResoultionMemoryView.frame.size.width / 2
+        // print(resoultionBar.frame.origin.x)
+        resoultionBar.frame.origin.y = -30
+        resoultionBar.backgroundColor = UIColor.black
+        faceResoultionMemoryView.addSubview(resoultionBar)
         for i in 1 ... resoultionVarSideMaxNumber {
             let pastResoultionView = UIView()
-            let x = faceResoultionMemoryView.frame.size.width / 2
+            let x = faceResoultionMemoryView.frame.size.width / 2 - 10
             let y = faceResoultionMemoryView.frame.origin.y
             pastResoultionView.frame.origin.x = x + CGFloat(i * 20)
             pastResoultionView.frame.origin.y = 0
@@ -217,6 +224,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
             resolutionPositionInt.append(i)
             resolutionPosition.append(Float(pastResoultionView.frame.origin.x + pastResoultionView.frame.size.width / 2))
         }
+        print(faceResoultionMemoryView.frame.size.width / 2)
         // print(faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2)
         for i in 1 ... resoultionVarSideMaxNumber {
             let pastResoultionView = UIView()
@@ -233,16 +241,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         }
         // print(resolutionPosition)
         // print(resolutionPositionInt)
-        print(resoultionBar.frame.origin.x)
+
         // print(faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2)
-        resoultionBar.frame.origin.x = faceResoultionMemoryView.frame.origin.x + faceResoultionMemoryView.frame.size.width / 2
-        // print(resoultionBar.frame.origin.x)
-        resoultionBar.frame.origin.y = -30
-        resoultionBar.frame.size.width = 1
-        resoultionBar.frame.size.height = resoultionBar.frame.size.height + 60
-        resoultionBar.backgroundColor = UIColor.black
-        print(resoultionBar.frame.origin.x)
-        faceResoultionMemoryView.addSubview(resoultionBar)
     }
 
     // Cellの総数を返す
