@@ -44,6 +44,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
         changeNum = changeNum + 1
         i = 0
         time = 0
+        dataAppendBool = false
+        stopTime = 0
+        tapData = [[]]
         goalLabel.text = String(resolutionPositionInt[i])
     }
 
@@ -514,18 +517,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                     self.stopTime = 10
                 }
                 self.stopBool = false
+                self.dataAppendBool = false
             }
 
             self.myCollectionViewPosition = self.myCollectionView.contentOffset.x
             let nowPosition = self.resoultionBar.frame.origin.x + self.resoultionBar.frame.size.width / 2
             // 目標との距離が近くなったら
             // print(nowPosition, "goal:", goal)
+
+            // 分解能をよく見えるようにするために
+//            if nowPosition - goal > 5 || goal - nowPosition > 5 {
+//                self.dataAppendBool = false
+//            }
             if nowPosition - goal < 5, goal - nowPosition < 5 {
+                self.dataAppendBool = true
+//                if self.i == 15 || self.i == 0 {
+//                    self.dataAppendBool = true
+//                }
                 self.stopBool = true
                 print("クリア")
                 self.time = self.time + 1
                 self.timeCount.value = Float(self.time)
                 if self.time > 60 {
+                    self.dataAppendBool = false
                     if self.i == 14 {
                         self.dataAppendBool = false
                     }
@@ -545,6 +559,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UICollectionViewDeleg
                         }
                     } else {
                         self.myCollectionView.contentOffset.x = firstStartPosition
+                        self.dataAppendBool = false
+                        self.resoultionBar.frame.origin.x = CGFloat(309.5)
                         if self.repeatNumber != 1 {
                             self.goalLabel.text = "終了!" + String(Float(self.nowgoal_Data.count / self.timeCountValue) - self.workTime) + "秒かかった"
                             self.workTime = Float(self.nowgoal_Data.count / self.timeCountValue)
